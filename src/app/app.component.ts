@@ -38,10 +38,12 @@ export class AppComponent implements OnInit {
 
   copy() {
     try {
-      if (navigator.userAgent.match(/ipad|ipod|iphone|Mac/i)) {
-        this.iosCopyToClipboard(this.inputEl.nativeElement);
+      if ((navigator as any).clipboard) {
+        (navigator as any).clipboard.writeText(this.couponCode);
+      } else if ((window as any).clipboardData) {
+        (window as any).clipboardData.setData('Text', this.couponCode);
       } else {
-        navigator.clipboard.writeText(this.couponCode);
+        this.iosCopyToClipboard(this.inputEl.nativeElement);
       }
       this.tooltipText = 'Copied to Clipboard.';
     } catch (e) {
