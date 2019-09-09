@@ -1,32 +1,72 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 
 @Component({
   selector: 'app-root',
   template: `
-    <!--The content below is only a placeholder and can be replaced.-->
-    <div style="text-align:center" class="content">
-      <h1>
-        Welcome to {{title}}!
-      </h1>
-      <span style="display: block">{{ title }} app is running!</span>
-      <img width="300" alt="Angular Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
+    <h4>
+      Copy Button Demo
+    </h4>
+
+    <input
+      #couponCodeInput
+      type="text"
+      [ngModel]="couponCode"
+      aria-label="Coupon Code"
+      readonly
+    />
+    <button type="button" (click)="copy()">COPY</button>
+
+    <div style="margin-top: 0.5rem;">
+      <p>{{ tooltipText }}</p>
+      <input
+        type="text"
+        placeholder="you can paste it here"
+        [hidden]="!tooltipText"
+      />
     </div>
-    <h2>Here are some links to help you start: </h2>
-    <ul>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
-      </li>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://angular.io/cli">CLI Documentation</a></h2>
-      </li>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
-      </li>
-    </ul>
-    
-  `,
-  styles: []
+  `
 })
-export class AppComponent {
-  title = 'ngx-clipboard';
+export class AppComponent implements OnInit {
+  couponCode = '';
+  tooltipText = '';
+  @ViewChild('couponCodeInput', { static: true })
+  inputEl: ElementRef;
+
+  ngOnInit() {
+    this.couponCode = 'MyCouponCode';
+  }
+
+  copy() {
+    try {
+      if (navigator.userAgent.match(/ipad|ipod|iphone|Mac/i)) {
+        this.iosCopyToClipboard(this.inputEl.nativeElement);
+      } else {
+        navigator.clipboard.writeText(this.couponCode);
+      }
+      this.tooltipText = 'Copied to Clipboard.';
+    } catch (e) {
+      this.tooltipText = 'Please copy coupon manually.';
+    }
+  }
+
+  private iosCopyToClipboard(el: HTMLInputElement) {
+    const oldContentEditable = el.contentEditable;
+    const oldReadOnly = el.readOnly;
+    const range = document.createRange();
+
+    el.contentEditable = 'true';
+    el.readOnly = false;
+    range.selectNodeContents(el);
+
+    const s = window.getSelection();
+    s.removeAllRanges();
+    s.addRange(range);
+
+    el.setSelectionRange(0, 999999);
+
+    el.contentEditable = oldContentEditable;
+    el.readOnly = oldReadOnly;
+
+    document.execCommand('copy');
+  }
 }
