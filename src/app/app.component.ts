@@ -41,9 +41,9 @@ export class AppComponent implements OnInit {
       if ((navigator as any).clipboard) {
         (navigator as any).clipboard.writeText(this.couponCode);
       } else if ((window as any).clipboardData) {
-        (window as any).clipboardData.setData('Text', this.couponCode);
+        (window as any).clipboardData.setData('text', this.couponCode);
       } else {
-        this.iosCopyToClipboard(this.inputEl.nativeElement);
+        this.copyToClipboard(this.inputEl.nativeElement);
       }
       this.tooltipText = 'Copied to Clipboard.';
     } catch (e) {
@@ -51,23 +51,28 @@ export class AppComponent implements OnInit {
     }
   }
 
-  private iosCopyToClipboard(el: HTMLInputElement) {
+  private copyToClipboard(el: HTMLInputElement) {
     const oldContentEditable = el.contentEditable;
     const oldReadOnly = el.readOnly;
+
+    try {
+      el.contentEditable = 'true';
+      el.readOnly = false;
+      this.copyNodeContentsToClipboard(el);
+    } finally {
+      el.contentEditable = oldContentEditable;
+      el.readOnly = oldReadOnly;
+    }
+  }
+
+  private copyNodeContentsToClipboard(el: HTMLInputElement) {
     const range = document.createRange();
-
-    el.contentEditable = 'true';
-    el.readOnly = false;
+    const selection = window.getSelection();
     range.selectNodeContents(el);
+    selection.removeAllRanges();
 
-    const s = window.getSelection();
-    s.removeAllRanges();
-    s.addRange(range);
-
+    selection.addRange(range);
     el.setSelectionRange(0, 999999);
-
-    el.contentEditable = oldContentEditable;
-    el.readOnly = oldReadOnly;
 
     document.execCommand('copy');
   }
