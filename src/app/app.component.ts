@@ -4,7 +4,13 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
   selector: 'app-root',
   template: `
     <h4>
-      Copy Button Demo
+      <a
+        href="https://github.com/changhuixu/angular-clipboard"
+        title="GitHub Repo"
+        target="_blank"
+        rel="noopener"
+        >Copy Button Demo</a
+      >
     </h4>
 
     <input
